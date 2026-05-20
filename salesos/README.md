@@ -1,157 +1,201 @@
 # SalesOS
 
-SalesOS is a local-first outbound operations platform built to run with Docker for the app stack and a local Windows Ollama instance for AI inference. The supported local environment is PostgreSQL, Redis, the FastAPI API, the Telegram bot, the Next.js dashboard, and n8n in Docker, with Ollama running on Windows at `http://localhost:11434`.
+A **local-first outbound operations platform** designed for lead generation, enrichment, and outreach coordination. SalesOS runs entirely in Docker with a local Windows Ollama instance for on-device AI inference, making it privacy-focused and suitable for developer laptops or small local servers.
 
-## What is included
+## 🎯 What SalesOS Does
 
-- `apps/api`: FastAPI backend with dependency health endpoints, startup validation, and structured service logs.
-- `apps/dashboard`: Next.js operator dashboard shell.
-- `apps/telegram-bot`: Telegram bot service with local polling support, optional production webhooks, and Redis-backed alert state.
-- `packages/shared/python`: shared logging, Redis, retry, and AI provider helpers.
-- `packages/config/python`: central typed environment settings.
-- `scripts/check_stack.py`: operator check for the local Docker stack and service endpoints.
-- `scripts/wait_for_services.py`: dependency wait helper used by containers and local debugging.
+- **Lead Scraping**: Ingest leads from Google Maps and other sources
+- **Lead Normalization**: Standardize lead data into canonical formats
+- **Deduplication**: Prevent duplicate leads using fingerprinting
+- **AI-Powered Analysis**: Classify and score leads using local Ollama models
+- **Operator Alerts**: Dispatch lead summaries to Telegram for real-time notifications
+- **Workflow Automation**: Orchestrate complex outreach sequences via n8n
+- **Local Dashboard**: Monitor system status and lead pipeline
 
-## Docker networking
+## 📦 What is Included
 
-All Docker services join the `salesos` bridge network defined in `docker-compose.yml`. Inside that network, containers talk to each other by service name:
+- **`apps/api`**: FastAPI backend orchestrating the entire lead pipeline, with health endpoints, startup validation, and structured logging
+- **`apps/dashboard`**: Next.js operator dashboard for system monitoring
+- **`apps/telegram-bot`**: Telegram bot service with local polling support and Redis-backed alert state
+- **`packages/shared/python`**: Shared logging, Redis, retry utilities, and AI provider abstractions
+- **`packages/config/python`**: Centralized typed environment settings
+- **`scripts/`**: Operator utilities for stack validation and pipeline testing
+- **`infrastructure/`**: Docker configurations and database initialization scripts
 
-- PostgreSQL: `postgres:5432`
-- Redis: `redis:6379`
-- API: `api:8000`
-- Telegram bot: `telegram-bot:8080`
-- Dashboard: `dashboard:3000`
-- n8n: `n8n:5678`
+## 🚀 Quick Start
 
-Ollama is the one exception. It is not part of the Compose network anymore. Containers reach the Windows host through Docker Desktop's special hostname:
+### Prerequisites
+- **Docker Desktop** (with Docker Compose)
+- **Ollama** installed on Windows ([download](https://ollama.ai))
+- **.env file** with required configuration (see [Setup](#-setup) section)
 
-- `OLLAMA_BASE_URL=http://host.docker.internal:11434`
+### 1. Start Ollama on Windows
+```bash
+# Run Ollama on your Windows machine (not in Docker)
+ollama pull phi3 gemma2:2b
+# Ollama will listen at http://localhost:11434
+```
 
-On Windows, `host.docker.internal` resolves from inside Docker containers back to the host machine. That lets the API container call the already-running Windows Ollama process on port `11434` without starting a second Ollama container.
+### 2. Start the Stack
+```bash
+make up           # Start all services
+make wait-stack   # Wait for services to be healthy
+make check-stack  # Verify all endpoints
+```
 
-## Ollama on Windows
+### 3. Access Services
+- **API**: http://localhost:8000 (Swagger docs at `/docs`)
+- **Dashboard**: http://localhost:3000
+- **Telegram Bot**: Internal service (sends alerts to configured chats)
+- **n8n**: http://localhost:5678
+- **Postgres**: localhost:5432
 
-Run Ollama locally on Windows only. Do not run it both locally and in Docker.
+## 🏗️ System Architecture
 
-- Local host URL: `http://localhost:11434`
-- Container URL: `http://host.docker.internal:11434`
-- Validation endpoint: `http://localhost:11434/api/tags`
+### Service Responsibilities
+- **API** (`apps/api`): Orchestration, lead persistence, workflow logging
+- **Telegram Bot** (`apps/telegram-bot`): Alert handling, operator notifications
+- **Dashboard** (`apps/dashboard`): Operator UI for system monitoring
+- **Shared Packages**: Common utilities (logging, Redis, AI providers)
 
-The API probes `/api/tags` during startup validation and health checks, logs the exact Ollama URL in use, and retries connectivity before continuing. If `host.docker.internal` does not resolve inside Docker Desktop, the startup logs now surface that directly.
+### First Pipeline Slice (Lead Ingestion)
+1. Operator triggers `POST /api/leads/scrape`
+2. API fetches leads from Apify (or stub mode if unconfigured)
+3. Raw payloads are normalized into canonical `LeadCreate` shape
+4. Leads deduplicated by fingerprint and stored in PostgreSQL
+5. Workflow events recorded for auditability
+6. Analysis and enrichment stubs process new leads
+7. Pipeline summary written to Redis cache
+8. Alert posted to Telegram bot service
 
-The default local-model settings are tuned for smaller local models:
+### Docker Networking
 
-- `OLLAMA_CLASSIFICATION_MODEL=phi3`
-- `OLLAMA_SECONDARY_CLASSIFICATION_MODEL=phi3`
-- `OLLAMA_REASONING_MODEL=gemma2:2b`
-- `OLLAMA_PERSONALIZATION_MODEL=phi3`
+All services join the `salesos` network and communicate by service name:
 
-## Startup sequencing
+| Service | Host | Port |
+|---------|------|------|
+| PostgreSQL | `postgres` | 5432 |
+| Redis | `redis` | 6379 |
+| API | `api` | 8000 |
+| Telegram Bot | `telegram-bot` | 8080 |
+| Dashboard | `dashboard` | 3000 |
+| n8n | `n8n` | 5678 |
 
-The stack starts in layers so slow services do not create noisy partial failures:
+**Ollama** runs on the Windows host (not in Docker) and is accessed via `host.docker.internal:11434` from containers.
 
-1. Docker Compose starts PostgreSQL and Redis first and waits for their health checks.
-2. The API container runs `scripts/wait_for_services.py`, validates local Ollama reachability at `OLLAMA_BASE_URL`, then runs Alembic migrations and FastAPI.
-3. During API lifespan startup, the app validates PostgreSQL, Redis, and Ollama again with structured logs before serving traffic.
-4. The Telegram bot waits for Redis, validates its own startup config, and starts after Redis is reachable.
-5. The dashboard starts after the API is healthy.
-6. n8n starts independently on the same network with persistent storage.
+## ⚙️ Setup
 
-This gives two layers of protection:
+### Environment Configuration
 
-- Compose `depends_on` plus health checks for coarse sequencing.
-- In-container dependency waits and API startup validation for readable diagnostics and graceful degradation.
+Create a `.env` file in the project root:
 
-## Environment setup
+```env
+# Database
+POSTGRES_DB=salesos
+POSTGRES_USER=salesos
+POSTGRES_PASSWORD=secure_password
+POSTGRES_PORT=5432
 
-1. Copy `.env.example` to `.env`.
-2. Set `OLLAMA_BASE_URL=http://host.docker.internal:11434`.
-3. Install and start Ollama on Windows, then verify `http://localhost:11434/api/tags` responds.
-4. Start Docker Desktop.
-5. Run `make up`.
-6. Optionally run `make wait-stack` and `make check-stack`.
+# API
+API_ENV=development
+API_LOG_LEVEL=INFO
 
-Important environment groups:
+# Ollama (Windows local instance)
+OLLAMA_BASE_URL=http://host.docker.internal:11434
+OLLAMA_CLASSIFICATION_MODEL=phi3
+OLLAMA_SECONDARY_CLASSIFICATION_MODEL=phi3
+OLLAMA_REASONING_MODEL=gemma2:2b
+OLLAMA_PERSONALIZATION_MODEL=phi3
 
-- PostgreSQL:
-  `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`
-- Redis:
-  `REDIS_URL`, `REDIS_OPERATION_TIMEOUT_SECONDS`, `REDIS_RETRY_ATTEMPTS`
-- Ollama:
-  `OLLAMA_BASE_URL`, `OLLAMA_*_MODEL`, `OLLAMA_TIMEOUT_SECONDS`, `OLLAMA_RETRY_ATTEMPTS`, `OLLAMA_KEEP_ALIVE`
-- API and logging:
-  `API_HOST`, `API_PORT`, `API_BASE_URL`, `LOG_LEVEL`
-- Telegram:
-  `TELEGRAM_BOT_TOKEN`, `TELEGRAM_USE_WEBHOOKS`, `TELEGRAM_WEBHOOK_SECRET`, `TELEGRAM_ALERT_CHAT_IDS`, `TELEGRAM_ALLOWED_USER_IDS`, `TELEGRAM_BASE_URL`
-- Startup behavior:
-  `STARTUP_STRICT_VALIDATION`, `STARTUP_GRACE_PERIOD_SECONDS`, `STARTUP_DEPENDENCY_TIMEOUT_SECONDS`, `STARTUP_DEPENDENCY_RETRY_ATTEMPTS`, `STARTUP_DEPENDENCY_POLL_SECONDS`
-- Lead reuse behavior:
-  `PROCESS_EXISTING_LEADS`, `OUTREACH_COOLDOWN_HOURS`
-- Lead lifecycle behavior:
-  `PROCESS_EXISTING_LEADS`, `OUTREACH_COOLDOWN_HOURS`
-- Development testing (opt-in, disabled by default):
-  `SALESOS_DEV_FORCE_OUTREACH` (bypass outreach cooldown to regenerate messages on re-runs for testing)
+# Redis
+REDIS_URL=redis://redis:6379
 
-## Local startup flow
+# Telegram Bot
+TELEGRAM_BOT_TOKEN=your_bot_token_here
+TELEGRAM_CHAT_ID=your_chat_id_here
 
-1. `make up`
-2. `docker compose ps`
-3. `make logs`
-4. `make check-stack`
+# Apify (optional)
+APIFY_TOKEN=your_apify_token_optional
+```
 
-Useful URLs after startup:
+### Ollama on Windows
 
-- API docs: `http://localhost:8000/docs`
-- API live: `http://localhost:8000/api/live`
-- API ready: `http://localhost:8000/api/ready`
-- API health: `http://localhost:8000/api/health`
-- Dashboard: `http://localhost:3000`
-- Telegram bot live: `http://localhost:8080/live`
-- Telegram bot ready: `http://localhost:8080/ready`
-- Telegram bot health: `http://localhost:8080/health`
-- Ollama tags: `http://localhost:11434/api/tags`
-- n8n: `http://localhost:5678`
+**Critical**: Run Ollama only on Windows, not in Docker.
 
-## Telegram mode selection
+- **Local host URL**: `http://localhost:11434`
+- **Container access URL**: `http://host.docker.internal:11434`
+- **Validation endpoint**: `http://localhost:11434/api/tags`
 
-SalesOS supports two Telegram delivery modes:
+The API validates Ollama connectivity during startup. If `host.docker.internal` fails to resolve, check Docker Desktop settings and restart if needed.
 
-- Local development: polling mode
-- Production/public deployments: webhook mode
+**Default Models** (tuned for smaller local GPUs):
+- `phi3` - Classification and personalization
+- `gemma2:2b` - Reasoning tasks
 
-Local Docker environments should use polling mode because Telegram webhooks require:
+## 📋 Common Commands
 
-- a public HTTPS URL
-- valid public DNS
-- a Telegram-reachable endpoint
+```bash
+# Stack management
+make up                      # Start all services in background
+make down                    # Stop all services
+make ps                      # Show running containers
+make logs                    # Stream logs from all services
+make rebuild                 # Rebuild images (skip cache)
 
-Your local Docker bridge network and `localhost` URLs do not satisfy those requirements, so webhook registration will fail with host resolution or reachability errors.
+# Development
+make api-shell              # Shell into API container
+make bot-shell              # Shell into Telegram bot container
+make migrate                # Run database migrations
+make validate               # Validate Python syntax
 
-Recommended local settings:
+# Testing & Debugging
+make check-stack            # Verify all services are healthy
+make wait-stack             # Wait for services to be ready
+make pipeline-sim           # Simulate lead pipeline
+make pipeline-sim-duplicates # Test duplicate handling
+make pipeline-sim-malformed # Test malformed data handling
+```
 
-- `ENVIRONMENT=development`
-- `TELEGRAM_USE_WEBHOOKS=false`
-- `TELEGRAM_BASE_URL=` left empty
+## 📚 Documentation
 
-Production webhook settings:
+- [System Architecture](docs/architecture.md) - Detailed service design
+- [Project Scope](PROJECT_SCOPE.md) - In-scope and out-of-scope features
+- [File Map](docs/file-map.md) - Directory structure reference
+- [API Reference](apps/api/README.md) - API endpoints and usage
 
-- `ENVIRONMENT=production`
-- `TELEGRAM_USE_WEBHOOKS=true`
-- `TELEGRAM_BASE_URL=https://your-public-domain.example`
-- `TELEGRAM_WEBHOOK_SECRET=<strong-secret>`
+## 🔧 Troubleshooting
 
-During startup the bot now logs:
+### Services won't start
+```bash
+make check-stack  # See which services are failing
+docker compose logs api  # Check API logs specifically
+```
 
-- bot username from Telegram `getMe`
-- selected mode: polling or webhook
-- webhook URL when webhook mode is enabled
-- polling startup success in local development
+### Ollama connection errors
+- Ensure Ollama is running: `curl http://localhost:11434/api/tags`
+- Verify `OLLAMA_BASE_URL` in `.env` points to `http://host.docker.internal:11434`
+- Restart Docker Desktop if DNS resolution fails
 
-## Scrape stub mode
+### Database migrations failed
+```bash
+make migrate  # Re-run migrations
+```
 
-When `APIFY_TOKEN` is empty or set to `replace-me`, SalesOS runs the scrape pipeline in local stub mode instead of calling Apify.
+## 📝 Project Status
 
-Stub mode now uses JSON fixtures under `scripts/fixtures` instead of a tiny hardcoded in-memory list. This keeps local runs realistic and makes the pipeline easier to test repeatedly.
+**Current Phase**: Operational foundation with stable lead pipeline
+
+**In Scope**: Lead scraping, normalization, deduplication, local AI analysis, Telegram alerts
+
+**Out of Scope**: Multi-tenancy, Kubernetes, autonomous negotiation, payment processing
+
+## 📄 License
+
+Proprietary
+
+---
+
+**Need more info?** Check [docs/architecture.md](docs/architecture.md) for detailed service design and [PROJECT_SCOPE.md](PROJECT_SCOPE.md) for current capabilities and roadmap.
 
 Current fixture set:
 
