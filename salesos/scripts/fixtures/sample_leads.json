@@ -1,0 +1,160 @@
+[
+  {
+    "title": "Northwind Growth Studio",
+    "phone": "+1 (555) 010-1111",
+    "website": "northwindgrowth.com",
+    "city": "Austin",
+    "state": "TX",
+    "country": "USA",
+    "category": "marketing agency",
+    "place_id": "sample-1",
+    "review_count": 48,
+    "rating": 4.9,
+    "email": "hello@northwindgrowth.com",
+    "reviews": [
+      {
+        "text": "They never answered our first two calls and the quote request sat for days before anyone responded.",
+        "rating": 2,
+        "timestamp": "2026-05-02T10:15:00Z"
+      },
+      {
+        "text": "We finally heard back, but there was no follow up after the initial call.",
+        "rating": 2,
+        "timestamp": "2026-04-21T14:30:00Z"
+      }
+    ]
+  },
+  {
+    "title": "Blue Harbor Media",
+    "phone": "+1 (555) 010-2222",
+    "website": "https://blueharbormedia.com",
+    "city": "Austin",
+    "state": "TX",
+    "country": "USA",
+    "category": "marketing agency",
+    "place_id": "sample-2",
+    "review_count": 31,
+    "rating": 4.8,
+    "email": "team@blueharbormedia.com",
+    "reviews": [
+      {
+        "text": "Communication was confusing and we kept getting rescheduled.",
+        "rating": 3,
+        "timestamp": "2026-03-29T09:00:00Z"
+      }
+    ]
+  },
+  {
+    "title": "Lone Star Demand Gen",
+    "phone": "+1 (555) 010-3333",
+    "website": "lonestardemandgen.com",
+    "city": "Austin",
+    "state": "TX",
+    "country": "USA",
+    "category": "marketing agency",
+    "place_id": "sample-3",
+    "review_count": 19,
+    "rating": 4.7
+  },
+  {
+    "title": "Cedar Park Creative",
+    "phone": "+1 (555) 010-4444",
+    "website": "cedarparkcreative.com",
+    "city": "Austin",
+    "state": "TX",
+    "country": "USA",
+    "category": "branding agency",
+    "place_id": "sample-4",
+    "review_count": 22,
+    "rating": 4.6,
+    "email": "contact@cedarparkcreative.com"
+  },
+  {
+    "title": "River City SEO Co",
+    "phone": "+1 (555) 010-5555",
+    "website": "rivercityseo.co",
+    "city": "Austin",
+    "state": "TX",
+    "country": "USA",
+    "category": "seo agency",
+    "place_id": "sample-5",
+    "review_count": 57,
+    "rating": 4.9,
+    "reviews": [
+      {
+        "text": "The team was polite but slow to respond after the audit call, and we never got the promised follow-up.",
+        "rating": 2,
+        "timestamp": "2026-05-08T11:45:00Z"
+      },
+      {
+        "text": "Pricing changed from the first quote and the explanation was unclear.",
+        "rating": 2,
+        "timestamp": "2026-04-17T16:20:00Z"
+      }
+    ]
+  },
+  {
+    "title": "South Congress Social",
+    "phone": "+1 (555) 010-6666",
+    "website": "southcongresssocial.com",
+    "city": "Austin",
+    "state": "TX",
+    "country": "USA",
+    "category": "social media agency",
+    "place_id": "sample-6",
+    "review_count": 17,
+    "rating": 4.5,
+    "email": "hi@southcongresssocial.com"
+  },
+  {
+    "title": "Capitol Content Lab",
+    "phone": "+1 (555) 010-7777",
+    "website": "capitolcontentlab.com",
+    "city": "Austin",
+    "state": "TX",
+    "country": "USA",
+    "category": "content marketing agency",
+    "place_id": "sample-7",
+    "review_count": 28,
+    "rating": 4.8
+  },
+  {
+    "title": "Hill Country PPC",
+    "phone": "+1 (555) 010-8888",
+    "website": "hillcountryppc.com",
+    "city": "Austin",
+    "state": "TX",
+    "country": "USA",
+    "category": "paid media agency",
+    "place_id": "sample-8",
+    "review_count": 35,
+    "rating": 4.7,
+    "email": "ops@hillcountryppc.com"
+  },
+  {
+    "title": "Northwind Growth Studio",
+    "phone": "+1 (555) 010-1111",
+    "website": "northwindgrowth.com",
+    "city": "Austin",
+    "state": "TX",
+    "country": "USA",
+    "category": "marketing agency",
+    "place_id": "sample-9",
+    "review_count": 48,
+    "rating": 4.9,
+    "email": "hello@northwindgrowth.com"
+  },
+  {
+    "title": "Blue Harbor Media",
+    "phone": "+1 (555) 010-2222",
+    "website": "https://blueharbormedia.com",
+    "city": "Austin",
+    "state": "TX",
+    "country": "USA",
+    "category": "marketing agency",
+    "place_id": "sample-10",
+    "review_count": 31,
+    "rating": 4.8,
+    "email": "team@blueharbormedia.com"
+  }
+]

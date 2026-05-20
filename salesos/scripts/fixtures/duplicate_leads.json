@@ -1,0 +1,50 @@
+[
+  {
+    "title": "Repeat Reach Digital",
+    "phone": "+1 (555) 010-3333",
+    "website": "repeatreachdigital.com",
+    "city": "Austin",
+    "state": "TX",
+    "country": "USA",
+    "category": "marketing agency",
+    "place_id": "dup-1",
+    "review_count": 14,
+    "rating": 4.4
+  },
+  {
+    "title": "Repeat Reach Digital",
+    "phone": "+1 (555) 010-3333",
+    "website": "repeatreachdigital.com",
+    "city": "Austin",
+    "state": "TX",
+    "country": "USA",
+    "category": "marketing agency",
+    "place_id": "dup-2",
+    "review_count": 14,
+    "rating": 4.4
+  },
+  {
+    "title": "Atlas Local Ads",
+    "phone": "+1 (555) 010-9090",
+    "website": "atlaslocalads.com",
+    "city": "Austin",
+    "state": "TX",
+    "country": "USA",
+    "category": "ppc agency",
+    "place_id": "dup-3",
+    "review_count": 11,
+    "rating": 4.3
+  },
+  {
+    "title": "Atlas Local Ads",
+    "phone": "+1 (555) 010-9090",
+    "website": "atlaslocalads.com",
+    "city": "Austin",
+    "state": "TX",
+    "country": "USA",
+    "category": "ppc agency",
+    "place_id": "dup-4",
+    "review_count": 11,
+    "rating": 4.3
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "title": "  ",
+    "phone": null,
+    "website": "not a url",
+    "city": "Austin",
+    "state": "TX",
+    "country": "USA",
+    "category": "marketing agency",
+    "place_id": "bad-1",
+    "review_count": 0,
+    "rating": 0
+  },
+  {
+    "phone": "+1 (555) 010-4444",
+    "website": "broken.local",
+    "city": "Austin",
+    "state": "TX",
+    "country": "USA",
+    "category": "marketing agency",
+    "place_id": "bad-2"
+  },
+  {
+    "title": "Partial Funnel Works",
+    "phone": "+1 (555) 010-4455",
+    "website": "partialfunnelworks.com",
+    "city": "Austin",
+    "state": "TX",
+    "country": "USA",
+    "category": "marketing agency",
+    "place_id": "bad-3",
+    "review_count": 8,
+    "rating": 4.1
+  },
+  {
+    "title": "No Site Creative",
+    "phone": "+1 (555) 010-4466",
+    "website": null,
+    "city": "Austin",
+    "state": "TX",
+    "country": "USA",
+    "category": "creative agency",
+    "place_id": "bad-4",
+    "review_count": 5,
+    "rating": 4.0
+  }
+]
