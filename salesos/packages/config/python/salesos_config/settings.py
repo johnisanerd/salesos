@@ -61,7 +61,7 @@ class Settings(BaseSettings):
 
     apify_token: str = Field(default="", alias="APIFY_TOKEN")
     apify_google_maps_actor_id: str = Field(
-        default="compass~google-maps-scraper",
+        default="johnvc~google-maps-places-api",
         alias="APIFY_GOOGLE_MAPS_ACTOR_ID",
     )
     apify_timeout_seconds: float = Field(default=30.0, alias="APIFY_TIMEOUT_SECONDS")

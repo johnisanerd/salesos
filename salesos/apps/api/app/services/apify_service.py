@@ -86,7 +86,7 @@ class ApifyGoogleMapsService:
 
         actor_id = settings.apify_google_maps_actor_id
         url = f"{self.base_url}/acts/{actor_id}/runs"
-        payload = {"searchStringsArray": [f"{query} in {location}"], "maxCrawledPlacesPerSearch": max_results}
+        payload = {"searchTerms": [f"{query} in {location}"], "maxResultsPerSearch": max(20, max_results)}
         headers = {"Authorization": f"Bearer {settings.apify_token}"}
 
         async with httpx.AsyncClient(timeout=settings.apify_timeout_seconds) as client:
